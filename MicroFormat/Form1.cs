@@ -249,6 +249,7 @@ namespace MicroFormat
         }
         public static bool FormatDrive(string driveLetter, string NewFileSystem, bool quickFormat, int clusterSize, string newLabel = "")
         {
+            try {
             ManagementObjectSearcher searcher = new ManagementObjectSearcher(@"select * from Win32_Volume WHERE DriveLetter = '" + driveLetter + "'");
             foreach (ManagementObject volume in searcher.Get())
             {
@@ -260,6 +261,10 @@ namespace MicroFormat
                     });
             }
             return true;
+            } catch (Exception ex){
+               MessageBox.Show("Could not format the drive. Something went wrong.","Ooops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               return false;
+            }
         }
         private void drives_list_cbox_SelectedIndexChanged(object sender, EventArgs e)
         {
