@@ -33,12 +33,14 @@ namespace MicroFormat
         static extern bool GetVolumeInformation(string Volume, StringBuilder VolumeName,
         uint VolumeNameSize, out uint volume_serialber, out uint volume_serialberLength,
         out uint flags, StringBuilder fs, uint fs_size);
+        int failedCount = 0;
         //Device States
-        private const int WM_DEVICECHANGE = 0x0219;
-        private const int DBT_DEVTYP_VOLUME = 0x00000002;
-        private const int DBT_DEVICEARRIVAL = 0x8000;
-        private const int DBT_DEVICEQUERYREMOVE = 0x8001;
-        private const int DBT_DEVICEREMOVECOMPLETE = 0x8004;
+        private const int WM_DEVICECHANGE           = 0x0219;
+        private const int DBT_DEVTYP_VOLUME         = 0x00000002;
+        private const int DBT_DEVICEARRIVAL         = 0x8000;
+        private const int DBT_DEVICEQUERYREMOVE     = 0x8001;
+        private const int DBT_DEVICEREMOVECOMPLETE  = 0x8004;
+        
         //Format variables
         string drive_to_prospect = "";
         bool RulesSetEnforcement = false;
@@ -49,6 +51,7 @@ namespace MicroFormat
         string NewVolumeLabel;
         bool isQuick = false;
         int clusterSizet;
+        
         public Form1()
         {
             InitializeComponent();
@@ -65,7 +68,7 @@ namespace MicroFormat
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            NewFileSystem = "NTFS";
+            NewFileSystem = "NTFS"; //Does not support exFAT, do not try.
             NewVolumeLabel = "CHANGE ME";
             isQuick = true;
             getDriveLetter();
@@ -263,6 +266,7 @@ namespace MicroFormat
             return true;
             } catch (Exception ex){
                MessageBox.Show("Could not format the drive. Something went wrong.","Ooops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               failedCount += 1;
                return false;
             }
         }
@@ -363,6 +367,7 @@ namespace MicroFormat
         {
             if (RulesSetEnforcement)
             {
+                //There might be a better way to do this.
                 var regex = new Regex(@"[^a-zA-Z0-9\s]");
                 if (regex.IsMatch(VolumeName.Text.ToString()))
                 {
